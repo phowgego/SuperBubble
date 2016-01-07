@@ -1,7 +1,7 @@
 #include "collision.h"
 #include "transforms.h"
 
-struct CollisionInfo
+static struct CollisionInfo
 {
     static const uint8_t EMPTY_Y_VALUE = -1;
     static const uint8_t MAX_Y_CHECKS = 3;

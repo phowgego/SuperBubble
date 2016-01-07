@@ -20,23 +20,23 @@ const float SCALE = (float)WIDTH / 800.0f;
 
 
 // Grid size is defined in play space (which for sizes is the same as window space).
-const uint16_t GRID_SIZE = (uint16_t)(50.0f * SCALE);
+const uint16_t GRID_SIZE = (int)(50.0f * SCALE);
 // Position of top left of play space in window space coordinates.
-const glm::vec2 PLAY_SPACE_POS = glm::vec2(250.0f * SCALE, 100.0f * SCALE);
+const glm::uvec2 PLAY_SPACE_POS = glm::uvec2((int)(250.0f * SCALE), (int)(100.0f * SCALE));
 // Position to render score
-const glm::vec2 SCORE_POS = glm::vec2(50.0f * SCALE, 50.0f * SCALE);
+const glm::uvec2 SCORE_POS = glm::uvec2((int)(50.0f * SCALE), (int)(50.0f * SCALE));
 // Position to render next bubbles.
-const glm::vec2 NEXT_BUBBLE_POS = glm::vec2(625.0f * SCALE, 58.0f * SCALE);
+const glm::uvec2 NEXT_BUBBLE_POS = glm::uvec2((int)(625.0f * SCALE), (int)(58.0f * SCALE));
 // Position to render label for next bubbles.
-const glm::vec2 NEXT_BUBBLE_LABEL_POS = glm::vec2(620.0f * SCALE, 180.0f * SCALE);
+const glm::uvec2 NEXT_BUBBLE_LABEL_POS = glm::uvec2((int)(620.0f * SCALE), (int)(180.0f * SCALE));
 // Position to render game over.
-const glm::vec2 GAME_OVER_POS = glm::vec2(250.0f * SCALE, 200.0f * SCALE);
+const glm::uvec2 GAME_OVER_POS = glm::uvec2((int)(250.0f * SCALE), (int)(200.0f * SCALE));
 // Menu positions.
-const glm::vec2 MENU_TITLE_POS = glm::vec2(50.0f * SCALE, 50.0f * SCALE);
-const glm::vec2 MENU_POS = glm::vec2(50.0f * SCALE, 100.0f * SCALE);
-const float MENU_Y_SPACING = 40.0f * SCALE;
+const glm::uvec2 MENU_TITLE_POS = glm::uvec2((int)(50.0f * SCALE), (int)(50.0f * SCALE));
+const glm::uvec2 MENU_POS = glm::uvec2((int)(50.0f * SCALE), (int)(100.0f * SCALE));
+const  uint16_t MENU_Y_SPACING = (int)(40.0f * SCALE);
 // Error position.
-const glm::vec2 ERROR_POS = glm::vec2(20.0f * SCALE, 500.0f * SCALE);
+const glm::uvec2 ERROR_POS = glm::uvec2((int)(20.0f * SCALE), (int)(500.0f * SCALE));
 
 const glm::vec3 MENU_TITLE_COLOR = glm::vec3(1.0f, 1.0f, 1.0f);
 const glm::vec3 MENU_COLOR = glm::vec3(0.7f, 0.7f, 0.7f);

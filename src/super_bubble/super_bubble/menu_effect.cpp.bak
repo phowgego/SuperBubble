@@ -20,13 +20,13 @@ void initEffectRenderer()
 
 void drawMenuEffect(const double secondsSinceLastUpdate)
 {
-    static GLfloat time = static_cast<float>(secondsSinceLastUpdate);
+    static GLfloat time = secondsSinceLastUpdate;    
     shader.SetFloat("time", time, true);
     
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
-    time += static_cast<float>(secondsSinceLastUpdate);
+    time += secondsSinceLastUpdate;
 }
 
 void deleteEffectVertexArrays() {

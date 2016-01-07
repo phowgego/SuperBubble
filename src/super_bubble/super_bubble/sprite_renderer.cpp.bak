@@ -35,7 +35,7 @@ void deleteSpriteVertexArrays() {
 * Draw sprite from texture atlas.
 *
 */
-void drawSprite(Texture2D &texture, glm::vec2 uvSize, GLuint atlasColumn, GLuint atlasRow, glm::vec2 windowPosition, glm::uvec2 size, GLfloat rotate, glm::vec3 color, float clipY)
+void drawSprite(Texture2D &texture, glm::vec2 uvSize, GLuint atlasColumn, GLuint atlasRow, glm::uvec2 windowPosition, glm::uvec2 size, GLfloat rotate, glm::vec3 color, float clipY)
 {
     // Prepare transformations
     shader.Use();

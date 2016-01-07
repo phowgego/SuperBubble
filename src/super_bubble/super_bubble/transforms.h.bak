@@ -10,10 +10,10 @@
  */
 
  // These methods return true if the transformation is valid.
-void gridSpaceToPlaySpace(const glm::ivec2 gridPosition, glm::ivec2 &playPosition);
-void playSpaceToGridSpace(const glm::ivec2 playPosition, glm::ivec2 &gridPosition);
-void windowSpaceToPlaySpace(const glm::vec2 windowPosition, glm::ivec2 &playPosition);
-void playSpaceToWindowSpace(const glm::ivec2 playPosition, glm::vec2 &windowPosition);
+bool gridSpaceToPlaySpace(const glm::ivec2 gridPosition, glm::ivec2 &playPosition);
+bool playSpaceToGridSpace(const glm::ivec2 playPosition, glm::ivec2 &gridPosition);
+bool windowSpaceToPlaySpace(const glm::uvec2 windowPosition, glm::ivec2 &playPosition);
+bool playSpaceToWindowSpace(const glm::ivec2 playPosition, glm::uvec2 &windowPosition);
 uint8_t playSpaceToNearestVerticalGrid(const glm::ivec2 playPosition, glm::ivec2 &gridPosition0, glm::ivec2 &gridPosition1);
 
 #endif

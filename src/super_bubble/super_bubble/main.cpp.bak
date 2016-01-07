@@ -58,7 +58,8 @@ int main()
 
     if (enet_initialize() != 0)
     {
-        std::cout << "Failed to initialise networking." << std::endl;        
+        std::cout << "Failed to initialise networking." << std::endl;
+        //return 1;
     }
 
     // Init GLFW
@@ -300,7 +301,7 @@ static void draw(const double secondsSinceLastUpdate) {
 	}
     else if (state == GameState::HELP)
     {
-        drawSprite(ResourceManager::GetTexture("help"), UV_SIZE_WHOLE_IMAGE, 0, 0, glm::vec2(0, 0), glm::uvec2(WIDTH, HEIGHT), 0.0f);
+        drawSprite(ResourceManager::GetTexture("help"), UV_SIZE_WHOLE_IMAGE, 0, 0, glm::uvec2(0, 0), glm::uvec2(WIDTH, HEIGHT), 0.0f);
     }
     else if (state == GameState::TEXT_ENTRY)
     {
@@ -323,11 +324,11 @@ static void draw(const double secondsSinceLastUpdate) {
     }
 	else
 	{
-		drawSprite(ResourceManager::GetTexture("background"), UV_SIZE_WHOLE_IMAGE, 0, 0, glm::vec2(0, 0), glm::uvec2(WIDTH, HEIGHT), 0.0f);
+		drawSprite(ResourceManager::GetTexture("background"), UV_SIZE_WHOLE_IMAGE, 0, 0, glm::uvec2(0, 0), glm::uvec2(WIDTH, HEIGHT), 0.0f);
         
 		renderGrid(grid, secondsSinceLastUpdate);
 
-		glm::vec2 renderPos;
+		glm::uvec2 renderPos;
 		// Render falling sprites.
 		for (std::list<Bubble>::iterator it = fallingBubbles.begin(); it != fallingBubbles.end(); it++)
 		{
@@ -358,7 +359,7 @@ static void draw(const double secondsSinceLastUpdate) {
 		// Render next bubbles.
 		drawSprite(ResourceManager::GetTexture("bubbles"), UV_SIZE_BUBBLE, 0, 0, NEXT_BUBBLE_POS,
 			glm::uvec2(GRID_SIZE, GRID_SIZE), 0.0f, BUBBLE_COLORS[nextColors.first], 0);
-		drawSprite(ResourceManager::GetTexture("bubbles"), UV_SIZE_BUBBLE, 0, 0, NEXT_BUBBLE_POS + glm::vec2(0, GRID_SIZE),
+		drawSprite(ResourceManager::GetTexture("bubbles"), UV_SIZE_BUBBLE, 0, 0, NEXT_BUBBLE_POS + glm::uvec2(0, GRID_SIZE),
 			glm::uvec2(GRID_SIZE, GRID_SIZE), 0.0f, BUBBLE_COLORS[nextColors.second], 0);
 		text->RenderText("NEXT", NEXT_BUBBLE_LABEL_POS.x, NEXT_BUBBLE_LABEL_POS.y, SCALE, glm::vec3(1.0f, 0.0f, 0.0f));
 

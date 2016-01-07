@@ -444,7 +444,7 @@ static void bounce()
 
 static GameState applyGravity(Bubble(&grid)[GRID_COLUMNS][GRID_ROWS], std::list<Bubble> &fallingBubbles, const double secondsSinceLastUpdate)
 {
-    uint8_t pixels = static_cast<uint8_t>(round(static_cast<double>(fallAmount) * (secondsSinceLastUpdate / TARGET_FRAME_SECONDS)));
+    uint8_t pixels = round(static_cast<double>(fallAmount) * (secondsSinceLastUpdate / TARGET_FRAME_SECONDS));
 
     glm::ivec2 gridPos0;
     glm::ivec2 gridPos1;
