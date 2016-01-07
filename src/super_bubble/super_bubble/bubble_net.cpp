@@ -212,6 +212,7 @@ static bool sendHello()
     // ENet will handle packet deallocation.
     ENetPacket *packet = enet_packet_create(&info, sizeof(info), ENET_PACKET_FLAG_RELIABLE);
     enet_peer_send(peer, CHANNEL_ID, packet);
+    return true;
 }
 
 /*
