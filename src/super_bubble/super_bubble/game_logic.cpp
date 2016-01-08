@@ -7,10 +7,12 @@
 #include "collision.h"
 #include "bubble_net.h"
 
-static int8_t fallAmount = (int8_t)(3.0f * SCALE);
-static int8_t levelFallAmount = (int8_t)(3.0f * SCALE);
 
 static const int8_t SPAWN_POS_Y = -2;
+static const int8_t FALL_AMOUNT_START = (int8_t)(3.0f * SCALE);
+
+static int8_t fallAmount = FALL_AMOUNT_START;
+static int8_t levelFallAmount = FALL_AMOUNT_START;
 
 static uint8_t *deathFrame = nullptr;
 
@@ -39,8 +41,13 @@ void resetGameLogic()
 	gameOverRow = GRID_ROWS - 1;
 }
 
-GameState spawnBubble(std::list<Bubble> &fallingBubbles, std::pair<BubbleColor, BubbleColor> &nextColors)
+GameState spawnBubble(std::list<Bubble> &fallingBubbles, std::pair<BubbleColor, BubbleColor> &nextColors, const uint32_t score)
 {
+    if (score < 5000)
+    {
+        levelFallAmount = FALL_AMOUNT_START + (score / 1000);        
+    }
+
     fallingBubbles.clear();
     glm::ivec2 gridPos(rand() % GRID_COLUMNS, SPAWN_POS_Y);
     Bubble mainBubble, buddyBubble;
@@ -57,12 +64,13 @@ GameState spawnBubble(std::list<Bubble> &fallingBubbles, std::pair<BubbleColor, 
     mainBubble.bounceAmount = buddyBubble.bounceAmount = 0;
     mainBubble.bounceDir = buddyBubble.bounceDir = 0;
     
-    buddyBubbleDirection = SOUTH;
-    fallAmount = levelFallAmount;    
+    buddyBubbleDirection = SOUTH;    
 
     // Must be pushed in bottom up order.
     fallingBubbles.push_back(buddyBubble);
     fallingBubbles.push_back(mainBubble);
+
+    fallAmount = levelFallAmount;
 
     return GameState::PLAYER_CONTROL;
 }

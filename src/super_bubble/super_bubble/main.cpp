@@ -236,7 +236,7 @@ static void update(const double secondsSinceLastUpdate) {
         state = disconnect();
         break;
     case GameState::BUBBLE_SPAWN:
-        state = spawnBubble(fallingBubbles, nextColors);
+        state = spawnBubble(fallingBubbles, nextColors, score);
         break;
     case GameState::PLAYER_CONTROL:
         state = controlPlayerBubbles(grid, fallingBubbles, controls, secondsSinceLastUpdate);
