@@ -329,7 +329,8 @@ static void draw(const double secondsSinceLastUpdate) {
 
 		glm::vec2 renderPos;
 		// Render falling sprites.
-		for (std::list<Bubble>::iterator it = fallingBubbles.begin(); it != fallingBubbles.end(); it++)
+        std::list<Bubble>::iterator end = fallingBubbles.end();
+		for (std::list<Bubble>::iterator it = fallingBubbles.begin(); it != end; ++it)
 		{
 			// The bubbles are defined in play space, but this may be offset from window space, so transform it.
 			playSpaceToWindowSpace((*it).playSpacePosition, renderPos);

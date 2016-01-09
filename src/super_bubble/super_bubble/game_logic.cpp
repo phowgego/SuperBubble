@@ -235,6 +235,7 @@ GameState scanForVictims(Bubble(&grid)[GRID_COLUMNS][GRID_ROWS], uint32_t &score
 {
     bool foundVictims = false;    
     uint8_t totalDeaths = 0;
+    std::list<Bubble*>::iterator end = currentChain.end();
 
     for (uint8_t y = 0; y < GRID_ROWS; y++)
     {
@@ -251,7 +252,7 @@ GameState scanForVictims(Bubble(&grid)[GRID_COLUMNS][GRID_ROWS], uint32_t &score
                     totalDeaths += chainLength;
 
                     score += ((chainLength - (CHAIN_DEATH_LENGTH - 1)) * 100);
-                    for (std::list<Bubble*>::iterator it = currentChain.begin(); it != currentChain.end(); it++)
+                    for (std::list<Bubble*>::iterator it = currentChain.begin(); it != end; ++it)
                     {
                         (*it)->animationFrame = 0;
                     }
@@ -261,8 +262,8 @@ GameState scanForVictims(Bubble(&grid)[GRID_COLUMNS][GRID_ROWS], uint32_t &score
                 }
                 else
                 {
-                    // Chain wasn't long enough, so reset state of all bubbles in the chain to idle.
-                    for (std::list<Bubble*>::iterator it = currentChain.begin(); it != currentChain.end(); it++)
+                    // Chain wasn't long enough, so reset state of all bubbles in the chain to idle.                    
+                    for (std::list<Bubble*>::iterator it = currentChain.begin(); it != end; ++it)
                     {
                         (*it)->state = BubbleState::IDLE;
                     }
@@ -284,7 +285,7 @@ GameState scanForVictims(Bubble(&grid)[GRID_COLUMNS][GRID_ROWS], uint32_t &score
                     checkForLink(grid, x, y, GHOST);
                     
                     bool killGhostChain = false;
-                    for (std::list<Bubble*>::iterator it = currentChain.begin(); it != currentChain.end(); it++)
+                    for (std::list<Bubble*>::iterator it = currentChain.begin(); it != end; ++it)
                     {
                         // Check each direction to see if it is touching a dying bubble.
                         glm::ivec2 gridPos;
@@ -322,7 +323,7 @@ GameState scanForVictims(Bubble(&grid)[GRID_COLUMNS][GRID_ROWS], uint32_t &score
                             break;
                         }
                     } // end iterate over currentChain.                    
-                    for (std::list<Bubble*>::iterator it = currentChain.begin(); it != currentChain.end(); it++)
+                    for (std::list<Bubble*>::iterator it = currentChain.begin(); it != end; ++it)
                     {
                         if (!killGhostChain)
                         {
@@ -433,7 +434,8 @@ GameState gameOver(Bubble(&grid)[GRID_COLUMNS][GRID_ROWS])
 static void bounce()
 {    
     bool allDone = true;
-    for (std::list<Bubble*>::iterator it = bounceList.begin(); it != bounceList.end(); it++)
+    std::list<Bubble*>::iterator end = bounceList.end();
+    for (std::list<Bubble*>::iterator it = bounceList.begin(); it != end; ++it)
     {
         if ((*it)->bounceAmount != 0)
         {
@@ -457,7 +459,8 @@ static GameState applyGravity(Bubble(&grid)[GRID_COLUMNS][GRID_ROWS], std::list<
     glm::ivec2 gridPos0;
     glm::ivec2 gridPos1;
     std::list<Bubble>::iterator it = fallingBubbles.begin();
-    while (it != fallingBubbles.end())
+    std::list<Bubble>::iterator end = fallingBubbles.end();
+    while (it != end)
     {
         // Which grid squares would we be overlapping after adding the fall amount?
         const glm::ivec2 playSpaceNext(it->playSpacePosition.x, it->playSpacePosition.y + pixels);
@@ -497,7 +500,7 @@ static GameState applyGravity(Bubble(&grid)[GRID_COLUMNS][GRID_ROWS], std::list<
         else
         {
             it->playSpacePosition.y += pixels;
-            it++;
+            ++it;
         }
     }
 
