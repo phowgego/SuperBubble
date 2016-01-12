@@ -21,6 +21,7 @@ const uint8_t TYPE_HELLO = 0;
 const uint8_t TYPE_NUM_BUBBLES = 1;
 const uint8_t TYPE_REMOTE_GAME_OVER = 2;
 
+// This structure is sent over the network.
 static struct BubbleInfo
 {
     uint8_t type;
@@ -28,7 +29,8 @@ static struct BubbleInfo
 } info;
 
 /*
-Returns true for success.
+    @brief Create the server.
+    @return True for success.
 */
 bool createServer()
 {
@@ -44,7 +46,8 @@ bool createServer()
 }
 
 /*
-Returns true for success.
+    @brief Create the client.
+    @return True for success.
 */
 bool createClient()
 {
@@ -56,7 +59,8 @@ bool createClient()
 }
 
 /*
-Returns true for success.
+    @brief Connect the client to a remote server. createClient() should be called first.
+    @return True for success.
 */
 bool clientConnect(const char* hostName)
 {
@@ -81,7 +85,9 @@ bool clientConnect(const char* hostName)
 }
 
 /*
-Returns true for success.
+    @brief Send bubbles to remote host. The bubbles will be dropped on the remote player's play field.
+    @param numBubbles Number of bubbles to send.
+    @return True for success.
 */
 bool sendBubbles(const uint8_t numBubbles)
 {
@@ -99,7 +105,8 @@ bool sendBubbles(const uint8_t numBubbles)
 }
 
 /*
-Returns true for success.
+    @brief Notify the remote host that local host has lost the game so remote has won.
+    @return True for success.
 */
 bool sendGameOver()
 {
@@ -116,6 +123,10 @@ bool sendGameOver()
     return false;
 }
 
+/*
+    @brief Should be called from game update loop to make sure messages are sent and received.
+    @return Network event. Can be NO_MESSAGE, CONNECTED, DISCONNECT_REQ, NUM_BUBBLES, REMOTE_GAME_OVER.
+*/
 NetMessage updateNetwork()
 {
     ENetHost *host = client == nullptr ? server : client;
@@ -173,16 +184,27 @@ NetMessage updateNetwork()
     return result;
 }
 
+/*
+    @brief Get current connection state.
+    @return True if connected to remote host.
+*/
 bool networkIsConnected()
 {
     return connected;
 }
 
+/*
+    @brief Get network role.
+    @return True if local host is the server.
+*/
 bool isServer()
 {
     return (server != nullptr);
 }
 
+/*
+    @brief Remove connection to remote host and reset state.
+*/
 void shutdownNetwork()
 {   
     ENetHost *host = client == nullptr ? server : client;
@@ -199,7 +221,7 @@ void shutdownNetwork()
 }
 
 /*
-Returns true for success.
+    @brief Local method to send initial 'hello' packet to remote host.
 */
 static bool sendHello()
 {
@@ -216,7 +238,7 @@ static bool sendHello()
 }
 
 /*
-timeoutMs : the time before forcing the connection down.
+    @brief Local method to disconnect from the remote host.
 */
 static void disconnect()
 {

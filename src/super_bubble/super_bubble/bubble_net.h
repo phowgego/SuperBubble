@@ -10,6 +10,8 @@ enum NetMessageType
     REMOTE_GAME_OVER
 };
 
+// This is used to return network messages to the main game loop.
+// This is not the message sent over the link.
 struct NetMessage
 {
     NetMessageType type;

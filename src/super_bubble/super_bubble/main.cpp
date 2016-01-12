@@ -23,30 +23,49 @@ static void draw(const double secondsSinceLastUpdate);
 static void getServerText();
 static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode);
 static void charCallback(GLFWwindow* window, unsigned int codepoint);
+
 static const char* MENU_STRINGS [] = { "START SINGLE PLAYER", 
                                        "START MULTIPLAYER SERVER",
                                        "JOIN MULTIPLAYER SERVER",
                                        "HELP",
                                        "QUIT" };
+
+
 static const uint8_t NUM_MENU_ITEMS = 5;
+
 static const uint8_t MENU_START_SINGLE = 0, MENU_START_MULTI = 1, MENU_JOIN_MULTI = 2, MENU_HELP = 3, MENU_QUIT = 4;
 
 static GLFWwindow* window = nullptr;
+
+// The grid that stores all the bubbles in the play area and their current state.
 static Bubble grid[GRID_COLUMNS][GRID_ROWS];
+
+// The overall state of the game. Used in the update() method.
 static GameState state = MENU;
+
+// A list of bubbles that are currently falling down the screen.
+// This include player controlled bubbles, bubbles that have been sent by other player,
+// and bubbles that fall after chains are removed.
 static std::list<Bubble> fallingBubbles;
+
+// Player input - stores state on current keys that are pressed.
 static Controls controls;
-static TextRenderer *text = nullptr;
-static uint32_t score = 0;
+
+// The next colours to be used for the next player bubbles spawned.
 static std::pair <BubbleColor, BubbleColor> nextColors;
-static uint8_t selectedMenuItem = 0;
 
+// Stores the time in seconds since the last frame update.
 static double frameTime = 0.0;
+// Stores the start time for timing a frame update.
 static double startTime = 0.0;
+// Frame count. Reset for the beginning of each game.
 static uint32_t frame = 0;
-
+// Stores the bubbles sent from the other player in networked games.
 static uint8_t numEnemyBubbles = 0;
 
+static uint8_t selectedMenuItem = 0;
+static TextRenderer *text = nullptr;
+static uint32_t score = 0;
 static std::string errorMessage;
 static std::string server;
 
@@ -156,6 +175,9 @@ int main()
     return 0;
 }
 
+/*
+    @brief Reset all state to start a new game.
+*/
 static void startGame()
 {
 	nextColors.first = static_cast<BubbleColor>(rand() % (MAX_SPAWN_COLOR + 1));
@@ -173,6 +195,9 @@ static void startGame()
     state = GameState::BUBBLE_SPAWN;
 }
 
+/*
+    @brief Get user input for the server to connect to in multiplayer mode.
+*/
 static void getServerText()
 {
     server.clear();
@@ -180,6 +205,10 @@ static void getServerText()
     state = GameState::TEXT_ENTRY;
 }
 
+/*
+    @brief Disconnect from other player.
+    @return Next game state to switch to.
+*/
 static GameState disconnect()
 {
     static bool startDisconnect = false;
@@ -198,6 +227,10 @@ static GameState disconnect()
     }
 }
 
+/*
+    @brief Update game state before drawing every frame.
+    @param secondsSinceLastUpdate - Time in seconds since last game update.    
+*/
 static void update(const double secondsSinceLastUpdate) {
     NetMessage netMsg = updateNetwork();
     if (netMsg.type == NetMessageType::NUM_BUBBLES)
@@ -262,6 +295,9 @@ static void update(const double secondsSinceLastUpdate) {
     }
 }
 
+/*
+    @brief Draw the screen based on the current game state.
+*/
 static void draw(const double secondsSinceLastUpdate) {    
     if (state == GameState::MENU || 
         state == GameState::SERVER_LISTEN || 
@@ -379,7 +415,14 @@ static void draw(const double secondsSinceLastUpdate) {
 	}
 }
 
-// Is called whenever a key is pressed/released via GLFW
+/*
+    @brief Called whenever a key is pressed/released via GLFW
+    @param window The window this applies to.
+    @param key The key for which the action occured.
+    @param scancode The scancode of the key.
+    @param The action that occurred on the key. E.g. GLFW_PRESSED.
+    @param mode One of GLFW_CURSOR, GLFW_STICKY_KEYS or GLFW_STICKY_MOUSE_BUTTONS.
+*/
 static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {	
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
@@ -504,6 +547,11 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
     }
 }
 
+/*
+    @brief Called whenever a key is pressed in text input mode.
+    @param window The window this applies to.    
+    @param codepoint The Unicode code point of the character input.    
+*/
 static void charCallback(GLFWwindow* window, unsigned int codepoint)
 {    
     if (codepoint > 32 && codepoint < 123)

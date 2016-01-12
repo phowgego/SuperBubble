@@ -1,5 +1,5 @@
 /*******************************************************************
-** This code is part of Breakout.
+** This code is part of Breakout from learnopengl.com.
 **
 ** Breakout is free software: you can redistribute it and/or modify
 ** it under the terms of the CC BY 4.0 license as published by

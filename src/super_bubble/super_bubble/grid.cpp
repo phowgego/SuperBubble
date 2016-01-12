@@ -4,6 +4,10 @@
 #include "resource_manager.h"
 #include "sprite_renderer.h"
 
+/*
+    @brief Initialise all the bubbles in the grid to DEAD, i.e. no bubbles are in the play area.
+    @param grid - The one and only grid representing the play area.    
+*/
 void initGrid(Bubble(&grid)[GRID_COLUMNS][GRID_ROWS])
 {
     for (uint8_t col = 0; col < GRID_COLUMNS; col++)
@@ -21,7 +25,11 @@ void initGrid(Bubble(&grid)[GRID_COLUMNS][GRID_ROWS])
     }
 }
 
-
+/*
+    @brief Draw sprites for all the bubbles in the grid that are not dead, taking account of animation frame.
+    @param grid - The one and only grid representing the play area.
+    @param secondsSinceLastUpdate - Time in seconds since last game update.
+*/
 void renderGrid(Bubble (&grid)[GRID_COLUMNS][GRID_ROWS], const double secondsSinceLastUpdate)
 {
     static double seconds = 0.0;

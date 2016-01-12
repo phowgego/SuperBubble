@@ -19,6 +19,7 @@ static uint8_t *deathFrame = nullptr;
 // For game over animation.
 static int8_t gameOverRow = GRID_ROWS - 1;
 
+// Used when rotating player controlled bubbles.
 enum Direction
 {
     NORTH,
@@ -36,11 +37,21 @@ static GameState applyGravity(Bubble(&grid)[GRID_COLUMNS][GRID_ROWS], std::list<
 static uint8_t checkForLink(Bubble(&grid)[GRID_COLUMNS][GRID_ROWS], const uint8_t &x, const uint8_t &y, const BubbleColor color);
 static void bounce();
 
+/*
+    @brief Reset state stored for the game logic module. Should be called before each new game.
+*/
 void resetGameLogic()
 {
 	gameOverRow = GRID_ROWS - 1;
 }
 
+/*
+    @brief Spawn a pair of bubbles and add to the falling list.
+    @param fallingBubbles - The one and only list of falling bubbles.
+    @param nextColors - The colour to use. This will also be updated with random colours ready for the next bubble pair.
+    @param score - The current score. Used to calculate the falling speed.
+    @return Next game state to switch to.
+*/
 GameState spawnBubble(std::list<Bubble> &fallingBubbles, std::pair<BubbleColor, BubbleColor> &nextColors, const uint32_t score)
 {
     if (score < 5000)
@@ -49,6 +60,7 @@ GameState spawnBubble(std::list<Bubble> &fallingBubbles, std::pair<BubbleColor, 
     }
 
     fallingBubbles.clear();
+    // Spawn at negative Y play space position so that bubbles are initially clipped.
     glm::ivec2 gridPos(rand() % GRID_COLUMNS, SPAWN_POS_Y);
     Bubble mainBubble, buddyBubble;
     gridSpaceToPlaySpace(gridPos, mainBubble.playSpacePosition);
@@ -75,6 +87,13 @@ GameState spawnBubble(std::list<Bubble> &fallingBubbles, std::pair<BubbleColor, 
     return GameState::PLAYER_CONTROL;
 }
 
+/*
+    @brief Move current falling player bubble pair based on player input. Performs collision detection.
+    @param grid - The one and only grid representing the play area.
+    @param fallingBubbles - The one and only list of falling bubbles.
+    @param secondsSinceLastUpdate - Time in seconds since last game update.
+    @return Next game state to switch to.
+*/
 GameState controlPlayerBubbles(Bubble(&grid)[GRID_COLUMNS][GRID_ROWS], std::list<Bubble> &fallingBubbles, Controls &controls, const double secondsSinceLastUpdate)
 {
     Bubble *buddyBubble = &fallingBubbles.front();
@@ -204,8 +223,13 @@ GameState controlPlayerBubbles(Bubble(&grid)[GRID_COLUMNS][GRID_ROWS], std::list
 }
 
 /*
- * numEnemyBubbles will be updated with the number of enemy bubbles consumed (dropped onto the play field).
-**/
+    @brief Used in multiplayer mode to drop any bubbles sent from the other player (the enemy!).
+    @param grid - The one and only grid representing the play area.
+    @param fallingBubbles - The one and only list of falling bubbles.
+    @param numEnemyBubbles - The number of bubbles to be dropped. Will be updated with the number of enemy bubbles consumed.
+    @param secondsSinceLastUpdate - Time in seconds since last game update.
+    @return Next game state to switch to.
+*/
 GameState dropEnemyBubbles(Bubble(&grid)[GRID_COLUMNS][GRID_ROWS], std::list<Bubble> &fallingBubbles, uint8_t &numEnemyBubbles, const double secondsSinceLastUpdate)
 {
     if (numEnemyBubbles == 0)
@@ -216,6 +240,8 @@ GameState dropEnemyBubbles(Bubble(&grid)[GRID_COLUMNS][GRID_ROWS], std::list<Bub
     {
         std::cout << "Got enemy bubbles: " << (uint16_t)numEnemyBubbles << std::endl;
         glm::ivec2 gridPos(0, -1);
+        // The maximum number of bubbles dropped is the number of grid columns.
+        // Further bubbles will be dropped on the next update call.
         int8_t numBubblesToDrop = std::min(numEnemyBubbles, GRID_COLUMNS);
         for (int8_t x = 0; x < numBubblesToDrop; x++)
         {
@@ -231,6 +257,11 @@ GameState dropEnemyBubbles(Bubble(&grid)[GRID_COLUMNS][GRID_ROWS], std::list<Bub
     }
 }
 
+/*
+    @brief Scan board for bubbles that form a chain of at least the minimum chain length and set them to DYING state.
+    @param score - The current score. Used to increase score depending on number and length of chains.
+    @return Next game state to switch to.
+*/
 GameState scanForVictims(Bubble(&grid)[GRID_COLUMNS][GRID_ROWS], uint32_t &score)
 {
     bool foundVictims = false;    
@@ -350,6 +381,11 @@ GameState scanForVictims(Bubble(&grid)[GRID_COLUMNS][GRID_ROWS], uint32_t &score
     }
 }
 
+/*
+    @brief Play death animation for any bubbles in DYING state and then set to DEAD state.
+    @param grid - The one and only grid representing the play area.    
+    @return Next game state to switch to.
+*/
 GameState animateDeaths(Bubble(&grid)[GRID_COLUMNS][GRID_ROWS])
 {    
     if (*deathFrame == BUBBLE_FRAMES - 1)
@@ -363,13 +399,19 @@ GameState animateDeaths(Bubble(&grid)[GRID_COLUMNS][GRID_ROWS])
                     grid[x][y].state = BubbleState::DEAD;
                 }
             }
-        }        
+        }
         return GameState::SCAN_FOR_FLOATERS;
     }
 
     return GameState::ANIMATE_DEATHS;
 }
 
+/*
+    @brief Scan for any bubbles that have had bubbles killed underneath them and should therefore fall down.
+    @param grid - The one and only grid representing the play area.
+    @param fallingBubbles - The one and only list of falling bubbles.
+    @return Next game state to switch to.
+*/
 GameState scanForFloaters(Bubble(&grid)[GRID_COLUMNS][GRID_ROWS], std::list<Bubble> &fallingBubbles)
 {
     bool foundFloaters = false;
@@ -411,6 +453,13 @@ GameState scanForFloaters(Bubble(&grid)[GRID_COLUMNS][GRID_ROWS], std::list<Bubb
     }
 }
 
+/*
+    @brief Apply gravity (move down the screen at the current speed) to all bubbles in the falling list.
+    @param grid - The one and only grid representing the play area.
+    @param fallingBubbles - The one and only list of falling bubbles.
+    @param secondsSinceLastUpdate - Time in seconds since last game update.
+    @return Next game state to switch to.
+*/
 GameState gravity(Bubble(&grid)[GRID_COLUMNS][GRID_ROWS], std::list<Bubble> &fallingBubbles, const double secondsSinceLastUpdate)
 {
     fallAmount = FAST_FALL_AMOUNT;
@@ -418,6 +467,11 @@ GameState gravity(Bubble(&grid)[GRID_COLUMNS][GRID_ROWS], std::list<Bubble> &fal
 }
 
 
+/*
+    @brief Show game over and wait for Esc to be pressed.
+    @param grid - The one and only grid representing the play area.
+    @return Next game state to switch to.
+*/
 GameState gameOver(Bubble(&grid)[GRID_COLUMNS][GRID_ROWS])
 {
 	if (gameOverRow >= 0)
@@ -431,6 +485,9 @@ GameState gameOver(Bubble(&grid)[GRID_COLUMNS][GRID_ROWS])
 	return GameState::GAME_OVER;
 }
 
+/*
+    @brief Modify bubble position over time to show bounce effect when they hit something after falling.
+*/
 static void bounce()
 {    
     bool allDone = true;
@@ -452,6 +509,13 @@ static void bounce()
     }
 }
 
+/*
+    @brief Local helper method to apply gravity (move down the screen at the current speed) to all bubbles in the falling list.
+    @param grid - The one and only grid representing the play area.
+    @param fallingBubbles - The one and only list of falling bubbles.
+    @param secondsSinceLastUpdate - Time in seconds since last game update.
+    @return Next game state to switch to.
+*/
 static GameState applyGravity(Bubble(&grid)[GRID_COLUMNS][GRID_ROWS], std::list<Bubble> &fallingBubbles, const double secondsSinceLastUpdate)
 {
     uint8_t pixels = static_cast<uint8_t>(round(static_cast<double>(fallAmount) * (secondsSinceLastUpdate / TARGET_FRAME_SECONDS)));
@@ -516,9 +580,38 @@ static GameState applyGravity(Bubble(&grid)[GRID_COLUMNS][GRID_ROWS], std::list<
     return GameState::GRAVITY;
 }
 
-// Finds size of a group of touching same coloured squares.
-// Takes x, y input specifying grid location (in grid co-ordinates!) to start checking
-// from.
+
+/*
+    @brief Find size of a group of touching same coloured squares.
+    @param grid - The one and only grid representing the play area.
+    @param x - x position in grid coordinates to start chain search.
+    @param y - y position in grid coordinates to start chain search.
+    @paran color - the color of the chain.
+    @return Length of chain found.
+*/
+static uint8_t checkForLink(Bubble(&grid)[GRID_COLUMNS][GRID_ROWS], const uint8_t &x, const uint8_t &y, const BubbleColor color)
+{
+    // Make sure we are not outside the grid. We are checking grid coordinates, not pixels, so boundary is at zero.
+    if (x < 0) return 0;
+    if (y < 0) return 0;
+    if (x > GRID_COLUMNS - 1) return 0;
+    if (y > GRID_ROWS - 1) return 0;
+
+    if (grid[x][y].state == BubbleState::IDLE)
+    {
+        return findGroupSize(grid, x, y, color);
+    }
+    return 0;
+}
+
+/*
+    @brief Find size of a group of touching same coloured squares. Should only be called by checkForLink.
+    @param grid - The one and only grid representing the play area.
+    @param x - x position in grid coordinates to start chain search.
+    @param y - y position in grid coordinates to start chain search.
+    @paran color - the color of the chain.
+    @return Length of chain found.
+*/
 static int findGroupSize(Bubble(&grid)[GRID_COLUMNS][GRID_ROWS], const uint8_t &x, const uint8_t &y, const BubbleColor &color)
 {
     if (grid[x][y].color == color)
@@ -540,21 +633,10 @@ static int findGroupSize(Bubble(&grid)[GRID_COLUMNS][GRID_ROWS], const uint8_t &
     }
 }
 
-static uint8_t checkForLink(Bubble(&grid)[GRID_COLUMNS][GRID_ROWS], const uint8_t &x, const uint8_t &y, const BubbleColor color)
-{
-    // Make sure we are not outside the grid. We are checking grid coordinates, not pixels, so boundary is at zero.
-    if (x < 0) return 0;
-    if (y < 0) return 0;
-    if (x > GRID_COLUMNS - 1) return 0;
-    if (y > GRID_ROWS - 1) return 0;
-
-    if (grid[x][y].state == BubbleState::IDLE)
-    {
-        return findGroupSize(grid, x, y, color);
-    }
-    return 0;
-}
-
+/*
+    @brief Debug method for printing bubble position and state.
+    @param bubble The bubble to print info about.
+*/
 static void printBubble(const Bubble &bubble)
 {
     std::cout << "(" << bubble.playSpacePosition.x << "," << bubble.playSpacePosition.y << ") state: " << bubble.state << std::endl;
